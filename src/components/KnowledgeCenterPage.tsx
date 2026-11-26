@@ -3,6 +3,7 @@ import {useMemo, useState} from 'react';
 import {KNOWLEDGE_CATEGORIES, MEDICAL_ARTICLES} from '../data/knowledgeData';
 import {MEDICAL_SERVICES} from '../data/servicesData';
 import type {KnowledgeCategoryId, Lang, MedicalArticle} from '../types/medical';
+import {TopicQuickPoll} from './TopicQuickPoll';
 
 interface KnowledgeCenterPageProps {
   lang: Lang;
@@ -279,6 +280,9 @@ export function KnowledgeCenterPage({
           </div>
         </section>
       )}
+
+      {/* Patient Quick Poll for Upcoming Blog Topics */}
+      <TopicQuickPoll lang={lang} />
 
       {/* 13 Medical Categories Filter Bar */}
       <div className="mt-10">

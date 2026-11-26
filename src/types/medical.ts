@@ -176,3 +176,19 @@ export interface AiAssistantResponse {
   doctorAdviceNote?: string;
 }
 
+export interface PollOption {
+  id: string;
+  categoryId: KnowledgeCategoryId;
+  title: BilingualText;
+  description: BilingualText;
+  votes: number;
+}
+
+export interface TopicPollState {
+  pollId: string;
+  question: BilingualText;
+  options: PollOption[];
+  totalVotes: number;
+  updatedAt: string;
+}
+

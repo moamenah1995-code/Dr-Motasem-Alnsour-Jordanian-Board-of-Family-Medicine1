@@ -20,7 +20,8 @@ import {
   DOCTOR_DIRECT_CONTACT_NOTE,
   DOCTOR_YOUTUBE_URL,
 } from './src/data/doctorChatKnowledge.ts';
-import type {AppointmentConfirmation, ConsultationMode, PatientReview} from './src/types/medical.ts';
+import {INITIAL_TOPIC_POLL} from './src/data/pollData.ts';
+import type {AppointmentConfirmation, ConsultationMode, PatientReview, TopicPollState} from './src/types/medical.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -33,6 +34,7 @@ app.use(express.json({limit: '100kb'}));
 // Persistent store path (fixed server directory, never user-controlled)
 const DATA_DIR = path.resolve(__dirname, 'data');
 const REVIEWS_FILE = path.resolve(DATA_DIR, 'reviews.json');
+const POLL_FILE = path.resolve(DATA_DIR, 'topic-poll.json');
 
 function loadPersistedReviews(): PatientReview[] {
   try {
@@ -57,9 +59,56 @@ function savePersistedReviews(list: PatientReview[]) {
   }
 }
 
-// In-memory store for appointments and persistent store for structured reviews
+function loadPersistedPoll(): TopicPollState {
+  const baseOptions = INITIAL_TOPIC_POLL.options.map((opt) => ({...opt}));
+  try {
+    if (fs.existsSync(POLL_FILE)) {
+      const parsed = JSON.parse(fs.readFileSync(POLL_FILE, 'utf8')) as Partial<TopicPollState>;
+      if (parsed && parsed.pollId === INITIAL_TOPIC_POLL.pollId && Array.isArray(parsed.options)) {
+        const voteMap = new Map<string, number>();
+        for (const item of parsed.options) {
+          if (item && typeof item.id === 'string' && typeof item.votes === 'number' && Number.isFinite(item.votes) && item.votes >= 0) {
+            voteMap.set(item.id, Math.floor(item.votes));
+          }
+        }
+        const mergedOptions = baseOptions.map((opt) => ({
+          ...opt,
+          votes: voteMap.get(opt.id) ?? 0,
+        }));
+        const totalVotes = mergedOptions.reduce((sum, opt) => sum + opt.votes, 0);
+        return {
+          ...INITIAL_TOPIC_POLL,
+          options: mergedOptions,
+          totalVotes,
+          updatedAt: typeof parsed.updatedAt === 'string' ? parsed.updatedAt : INITIAL_TOPIC_POLL.updatedAt,
+        };
+      }
+    }
+  } catch (err) {
+    console.error('Failed to read persisted topic poll:', err);
+  }
+  return {
+    ...INITIAL_TOPIC_POLL,
+    options: baseOptions,
+    totalVotes: 0,
+  };
+}
+
+function savePersistedPoll(poll: TopicPollState) {
+  try {
+    if (!fs.existsSync(DATA_DIR)) {
+      fs.mkdirSync(DATA_DIR, {recursive: true});
+    }
+    fs.writeFileSync(POLL_FILE, JSON.stringify(poll, null, 2), 'utf8');
+  } catch (err) {
+    console.error('Failed to save topic poll:', err);
+  }
+}
+
+// In-memory store for appointments and persistent stores for reviews & topic poll
 const bookedSlots = new Map<string, AppointmentConfirmation>();
 const clinicReviews: PatientReview[] = loadPersistedReviews();
+const topicPollState: TopicPollState = loadPersistedPoll();
 
 const TIME_SLOTS_BY_MODE: Record<ConsultationMode, string[]> = {
   online: ['09:00', '10:00', '11:30', '14:00', '16:00', '18:30', '20:00'],
@@ -449,6 +498,39 @@ app.post('/api/reviews', (req, res) => {
   clinicReviews.unshift(newReview);
   savePersistedReviews(clinicReviews);
   res.status(201).json({review: newReview});
+});
+
+// Knowledge Center Quick Poll endpoints
+app.get('/api/poll', (_req, res) => {
+  res.json(topicPollState);
+});
+
+app.post('/api/poll/vote', (req, res) => {
+  const body = req.body ?? {};
+  const optionId = sanitizeString(body.optionId, 64);
+  const previousOptionId = sanitizeString(body.previousOptionId, 64);
+
+  const targetOption = topicPollState.options.find((opt) => opt.id === optionId);
+  if (!targetOption) {
+    res.status(400).json({error: 'Invalid poll topic selected.'});
+    return;
+  }
+
+  if (previousOptionId && previousOptionId !== optionId) {
+    const prevOption = topicPollState.options.find((opt) => opt.id === previousOptionId);
+    if (prevOption && prevOption.votes > 0) {
+      prevOption.votes -= 1;
+    }
+    targetOption.votes += 1;
+  } else if (previousOptionId !== optionId) {
+    targetOption.votes += 1;
+  }
+
+  topicPollState.totalVotes = topicPollState.options.reduce((sum, opt) => sum + opt.votes, 0);
+  topicPollState.updatedAt = new Date().toISOString();
+  savePersistedPoll(topicPollState);
+
+  res.json(topicPollState);
 });
 
 // Server-side Gemini AI Medical Assistant endpoint
