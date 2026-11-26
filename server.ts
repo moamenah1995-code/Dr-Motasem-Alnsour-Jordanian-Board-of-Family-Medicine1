@@ -742,6 +742,7 @@ async function startServer() {
     const distDir = path.resolve(__dirname, 'dist');
     app.use(express.static(distDir));
     app.use('/Dr-Motasem-Alnsour-Jordanian-Board-of-Family-Medicine', express.static(distDir));
+    app.use('/Dr-Motasem-Alnsour-Jordanian-Board-of-Family-Medicine1', express.static(distDir));
     app.get('*', (_req, res) => {
       const indexFile = path.join(distDir, 'index.html');
       if (fs.existsSync(indexFile)) {

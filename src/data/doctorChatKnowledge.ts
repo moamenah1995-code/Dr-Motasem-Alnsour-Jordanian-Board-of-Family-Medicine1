@@ -14,7 +14,12 @@ export const DOCTOR_YOUTUBE_URL = 'https://www.youtube.com/@drmotasemalnsour?si=
 export const DOCTOR_INSTAGRAM_URL = 'https://www.instagram.com/dr_motasem_alnsour?gwpx=MXNuc2kxeXIyNTdsYQ==';
 export const DOCTOR_TIKTOK_URL = 'https://www.tiktok.com/@dr.motasem.alnsour?_r=1&_t=ZS-9BjUDRLkjBM';
 export const DOCTOR_BUSINESS_CARD_URL = 'https://hihello.com/hi/dr.motasem.alnsour';
-export const DOCTOR_PORTRAIT_PATH = '/assets/aistudio/___________ecefce18.png';
+const viteBaseUrl =
+  (typeof import.meta !== 'undefined' &&
+    (import.meta as unknown as {env?: {BASE_URL?: string}}).env?.BASE_URL) ||
+  '/';
+
+export const DOCTOR_PORTRAIT_PATH = `${viteBaseUrl}assets/aistudio/___________ecefce18.png`;
 
 export const DOCTOR_DIRECT_CONTACT_NOTE: BilingualText = {
   ar: 'للحصول على دقة تشخيصية أعلى والاستفادة بشكل أكبر حسب حالتك الصحية وتاريخك المرضي، من الأفضل دائماً التواصل مباشرة مع د. معتصم النسور.',
