@@ -6,7 +6,9 @@ import { defineConfig } from 'vite';
 
 export default defineConfig(() => {
   return {
-    base: '/Dr-Motasem-Alnsour-Jordanian-Board-of-Family-Medicine/',
+    base: process.env.GITHUB_ACTIONS
+      ? '/Dr-Motasem-Alnsour-Jordanian-Board-of-Family-Medicine/'
+      : '/',
     plugins: [
       react(),
       tailwindcss(),
