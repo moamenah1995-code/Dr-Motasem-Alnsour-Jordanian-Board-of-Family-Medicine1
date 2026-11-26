@@ -1,6 +1,6 @@
 {
   "name": "Remix Dr. Motasem Alnsour | Family Medicine Specialist",
-  "description": "Comprehensive bilingual medical platform for Dr. Motasem Alnsour, Jordanian Board of Family Medicine \u0026 SCFHS Certified Senior Specialist, offering online and in-clinic consultations in Riyadh and Jordan.",
+  "description": "Comprehensive bilingual medical platform for Dr. Motasem Alnsour, Jordanian Board of Family Medicine & SCFHS Certified Senior Specialist, offering online and in-clinic consultations in Riyadh and Jordan.",
   "requestFramePermissions": [],
   "majorCapabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
