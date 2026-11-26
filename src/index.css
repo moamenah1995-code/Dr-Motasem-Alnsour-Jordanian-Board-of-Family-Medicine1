@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-ar-display: "Cairo", "IBM Plex Sans Arabic", system-ui, sans-serif;
+    --font-ar-body: "IBM Plex Sans Arabic", "Cairo", system-ui, sans-serif;
+    --font-en-display: "Plus Jakarta Sans", "Manrope", system-ui, sans-serif;
+    --font-en-body: "Manrope", "Plus Jakarta Sans", system-ui, sans-serif;
+    --font-mono-data: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  html[lang="ar"] body {
+    font-family: var(--font-ar-body);
+  }
+
+  html[lang="ar"] h1,
+  html[lang="ar"] h2,
+  html[lang="ar"] h3,
+  html[lang="ar"] h4,
+  html[lang="ar"] .font-display {
+    font-family: var(--font-ar-display);
+  }
+
+  html[lang="en"] body {
+    font-family: var(--font-en-body);
+  }
+
+  html[lang="en"] h1,
+  html[lang="en"] h2,
+  html[lang="en"] h3,
+  html[lang="en"] h4,
+  html[lang="en"] .font-display {
+    font-family: var(--font-en-display);
+  }
+
+  .font-mono-num {
+    font-family: var(--font-mono-data);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
